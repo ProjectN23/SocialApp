@@ -9,17 +9,11 @@ const userRoute = require('./routes/users')
 //middleware
 
 
+app.use(cors({
+  origin: '*'
+}));
+
 app.use("/api/users/", userRoute)
-
-app.use(cors(), function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
-
 
 //impostiamo la connesione al db mongoose sul cloud
 const mongoose = require('mongoose')
@@ -35,7 +29,7 @@ app.use(express.json())
 
 
 
-//impostiamo l'ascolto sulla porta 5000
+//impostiamo l'ascolto sulla porta 3000
 app.listen(port, () => {
     console.log("Il Backend è in funzione")
 })

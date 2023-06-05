@@ -36,28 +36,16 @@ const defaultTheme = createTheme();
 export default function Registration() {
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log( data)
-
+    fetch('http://localhost:3000/api/users/addUser', {
+    method: 'post',
+    body: JSON.stringify({
+        username: event.target.username.value,
+        email: event.target.email.value,
+        password: event.target.password.value 
+    })
+  }
     
-  
-    axios.post('http://localhost:3000/api/users/addUser', 
-    
-    {
-
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Credentials': 'true'
-      },
-      
-        username: data.username,
-        email: data.email,
-        password: data.password
-    }
-
-    
-    ).then(res => console.log(res.json())).catch(e => console.log(e))
+    ).then(res => res.json()).catch(e => console.log(e))
   };
 
 

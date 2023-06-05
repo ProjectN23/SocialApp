@@ -4,16 +4,18 @@ const app = express()
 const port = '3000'
 const cors = require('cors')
 
-//Richiamo la route dell'user in modo da utilizzare il middleware. Sappiamo che alla chiamata /api/users/.... rispondera lo users.js nella cartella routes
-const userRoute = require('./routes/users')
-//middleware
-
+app.options('*', cors())
 
 app.use(cors({
   origin: '*'
 }));
 
-app.use("/api/users/", userRoute)
+//Richiamo la route dell'user in modo da utilizzare il middleware. Sappiamo che alla chiamata /api/users/.... rispondera lo users.js nella cartella routes
+const userRoute = require('./routes/users')
+//middleware
+
+
+app.use("/api/users", userRoute)
 
 //impostiamo la connesione al db mongoose sul cloud
 const mongoose = require('mongoose')

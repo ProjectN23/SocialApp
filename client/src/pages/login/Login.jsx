@@ -2,23 +2,24 @@ import axios from "axios";
 import { useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-
-
+import Cookies from 'universal-cookie';
 function Login() {
   const email = useRef();
   const password = useRef();
   const navigate = useNavigate();
-
+  
+  const cookies = new Cookies()
 
   async function login(event) {
     event.preventDefault();
     try {
-      await axios.post("http://localhost:8800/api/users/checkUser", {
+     const res =  await axios.post("http://localhost:8800/api/users/checkUser", {
         email: email.current.value,
         password: password.current.value,
       });
       alert("Login effettuato con successo");
       navigate("/home");
+      cookies.set("jwt_authorization", res.data.token, {secure: true, sameSite: 'none'})
     } catch (err) {
       alert(err.response.data);
     }

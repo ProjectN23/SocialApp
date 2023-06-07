@@ -48,8 +48,7 @@ module.exports = {
                   }
               );
               user.token = token;
-              res.cookie('token', token, { httpOnly: true });
-              res.status(200).json(user);
+              res.status(200).json({ token });
           } else {
             res.status(400).send("Credenziali non valide");
           }
@@ -57,7 +56,19 @@ module.exports = {
       } catch (err) {
           console.log(err);
       }
-    }
+    },
+
+
+    getUser: async (req, res) => {
+      try {
+          const conversation = await User.findOne({
+              _id: { $in:[req.params.user]}
+          })
+          res.status(200).json(conversation.username)
+      } catch (err) {
+          res.status(500).json(err)
+      }
+  }
 
 }
     

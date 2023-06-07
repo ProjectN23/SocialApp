@@ -1,8 +1,14 @@
+import Chats from "../../components/chats/Chats";
 import "./home.css"
+import Cookies from 'universal-cookie';
+import jwt from "jwt-decode";
+const cookies = new Cookies()
 
 export default function Home() {
-  return (
+	const userDec = jwt(cookies.get("jwt_authorization"))
 
+  return (
+	<>
     <div className='container-fluid justify-content-center align-items-center 100-w vh-100 bg-primary'>
       <div className="row justify-content-center align-items-center h-100">
 				<div className="col-md-4 col-xl-3 chat"><div className="card mb-sm-3 mb-md-0 contacts_card">
@@ -16,30 +22,21 @@ export default function Home() {
 					</div>
 					<div className="card-body contacts_body">
 						<ul className="contacts">
-						<li className="active">
+						{/*<li className="active">
 							<div className="d-flex bd-highlight">
 								<div className="img_cont">
 									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" className="rounded-circle user_img"/>
 									<span className="online_icon"></span>
 								</div>
 								<div className="user_info">
-									<span>Khalid</span>
+									<span></span>
 									<p>Kalid is online</p>
 								</div>
 							</div>
-						</li>
-						<li>
-							<div className="d-flex bd-highlight">
-								<div className="img_cont">
-									<img src="https://2.bp.blogspot.com/-8ytYF7cfPkQ/WkPe1-rtrcI/AAAAAAAAGqU/FGfTDVgkcIwmOTtjLka51vineFBExJuSACLcBGAs/s320/31.jpg" className="rounded-circle user_img"/>
-									<span className="online_icon offline"></span>
-								</div>
-								<div className="user_info">
-									<span>Taherah Big</span>
-									<p>Taherah left 7 mins ago</p>
-								</div>
-							</div>
-						</li>
+						</li>*/}
+							<li>
+								<Chats user={userDec.user_id}/>
+							</li>
 						</ul>
 					</div>
 					<div className="card-footer">
@@ -112,5 +109,6 @@ export default function Home() {
 				</div>
 			</div>
 		</div>
+	</>
   );
 }

@@ -1,129 +1,60 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from "axios";
+import { useRef } from "react";
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
-// TODO remove, this demo shouldn't need to reset the theme.
+function Login() {
+  const email = useRef();
+  const password = useRef();
+  const navigate = useNavigate();
 
-const defaultTheme = createTheme();
 
-export default function Login() {
-  const handleSubmit = (event) => {
+  async function login(event) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
-
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
-            </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="/registration" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
-              <Copyright sx={{ mt: 5 }} />
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-    </ThemeProvider>
-  );
+    try {
+      await axios.post("http://localhost:8800/api/users/checkUser", {
+        email: email.current.value,
+        password: password.current.value,
+      });
+      alert("Login effettuato con successo");
+      navigate("/home");
+    } catch (err) {
+      alert(err.response.data);
+    }
 }
+      
+
+
+    return (
+      <div className='login template d-flex justify-content-center align-items-center 100-w vh-100 bg-primary'>
+        <div className="form_container p-5 rounded bg-white">
+          <form>
+            <h3 className="text-center">Login</h3>
+            <div className="mb-2">
+              <label htmlFor="email">Email</label>
+              <input type="email" placeholder="Inserisci Email" className="form-control" required 
+                ref={email}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="password">Password</label>
+              <input type="password" placeholder="Inserisci la Password" className="form-control" required
+                  ref={password}
+              />
+            </div>
+            <div className="d-grid">
+              <button className="btn btn-primary" onClick={login}>Login</button>
+            </div>
+            <p className="text-end mt-2">
+              <Link to="">Password dimenticata?</Link><Link to="/registration" className="ms-2">Registrati</Link>
+            </p>
+          </form>
+        </div>
+      </div>
+      
+    )
+
+  }
+  
+  export default Login;

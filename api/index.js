@@ -1,25 +1,21 @@
-//Richiamo la libreria express e la assegno ad app
-const express = require('express')
-const app = express()
-const port = '3000'
-const cors = require('cors')
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
+const userRoute = require("./routes/users");
+const authRoute = require("./routes/auth");
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 
-app.options('*', cors())
+const cors=require("cors");
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
+app.use(cors(corsOptions))
+app.use(cookieParser());
 
-app.use(cors({
-  origin: '*'
-}));
-
-//Richiamo la route dell'user in modo da utilizzare il middleware. Sappiamo che alla chiamata /api/users/.... rispondera lo users.js nella cartella routes
-const userRoute = require('./routes/users')
-//middleware
-
-
-app.use("/api/users", userRoute)
-
-//impostiamo la connesione al db mongoose sul cloud
-const mongoose = require('mongoose')
-mongoose.connect("mongodb+srv://admin:admin@databaseprova.hahfdym.mongodb.net/?retryWrites=true&w=majority/SocialApp");
+mongoose.connect('mongodb+srv://admin:admin@databaseprova.hahfdym.mongodb.net/SocialApp')
 
 const db = mongoose.connection
 
@@ -27,11 +23,13 @@ db.once('open', () => {
   console.log('Connesso al DB')
 })
 
-app.use(express.json())
+//middleware
+app.use(express.json());
 
 
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
 
-//impostiamo l'ascolto sulla porta 3000
-app.listen(port, () => {
-    console.log("Il Backend è in funzione")
-})
+app.listen(8800, () => {
+  console.log("Backend server is running!");
+});

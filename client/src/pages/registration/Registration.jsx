@@ -1,132 +1,75 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from "axios";
+import { useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-
-import axios from 'axios';
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
 
 export default function Registration() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    fetch('http://localhost:3000/api/users/addUser', {
-    method: 'post',
-    body: JSON.stringify({
-        username: event.target.username.value,
-        email: event.target.email.value,
-        password: event.target.password.value 
-    })
-  }
-    
-    ).then(res => res.json()).catch(e => console.log(e))
-  };
+  const navigate = useNavigate();
+  const username = useRef();
+  const email = useRef();
+  const password = useRef();
+  const rePass = useRef();
 
+  async function registration(event) {
+    event.preventDefault();
+    if (rePass.current.value !== password.current.value) {
+      rePass.current.setCustomValidity("Le password non coincidono!");
+    } else {
+    try {
+      await axios.post("http://localhost:8800/api/users/addUser", {
+        username: username.current.value,
+        email: email.current.value,
+        password: password.current.value,
+      });
+      alert("Registrazione andata a buon fine");
+      navigate("/");
+    } catch (err) {
+      alert(err.response.data);
+    }
+  }
+}
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="given-name"
-                  name="username"
-                  required
-                  fullWidth
-                  id="username"
-                  label="Username"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 5 }} />
-      </Container>
-    </ThemeProvider>
+    <div className='signup template d-flex justify-content-center align-items-center 100-w vh-100 bg-primary'>
+        <div className="form_container p-5 rounded bg-white">
+          <form>
+            <h3 className="text-center">Registrati</h3>
+            <div className="mb-2">
+              <label htmlFor="username">Username</label>
+              <input type="username" placeholder="Inserisci l'username" className="form-control" required
+                  ref={username}
+                  //onChange={(event) => {setName(event.target.value);}}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="email">Email</label>
+              <input type="email" placeholder="Inserisci l'Email" className="form-control" required
+                  ref={email}
+                  //onChange={(event) => {setEmail(event.target.value)}}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="password">Password</label>
+              <input type="password" placeholder="Inserisci la Password" className="form-control" required
+                  ref={password}
+                  //onChange={(event) => {setPassword(event.target.value)}}
+              />
+            </div>
+            <div className="mb-2">
+              <label htmlFor="repass">Ripeti password</label>
+              <input type="password" placeholder="Reinserisci la Password" className="form-control" required
+                  ref={rePass}
+                  //onChange={(event) => {setrepPass(event.target.value)}}
+              />
+            </div>
+            <div className="d-grid">
+              <button className="btn btn-primary" onClick={registration}>Registrati</button>
+            </div>
+            <p className="text-end mt-2">
+              <Link to="/" className="ms-2">Fai il login</Link>
+            </p>
+          </form>
+        </div>
+      </div>
   );
 }

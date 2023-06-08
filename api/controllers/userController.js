@@ -61,10 +61,10 @@ module.exports = {
 
     getUser: async (req, res) => {
       try {
-          const conversation = await User.findOne({
+          const user = await User.findOne({
               _id: { $in:[req.params.user]}
           })
-          res.status(200).json(conversation.username)
+          res.status(200).json(user)
       } catch (err) {
           res.status(500).json(err)
       }

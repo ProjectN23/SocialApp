@@ -1,13 +1,12 @@
 import {useState, useEffect} from 'react'
 import axios from 'axios'
-import './chat.css'
+import './friend.css'
 
-export default function Chat({ conversation, currUser}) {
-    const [user, setUser] = useState(null)
+export default function Chat({ conversation, currUser, getMessages, getUserConv}) {
+    const [user, setUser] = useState([])
 
     useEffect(() => {
         const friendId = conversation.members.find(u => u !== currUser)
-
         const getUser = async () => {
             try {
                 const res = await axios.get('http://localhost:8800/api/users/' + friendId);
@@ -22,14 +21,14 @@ export default function Chat({ conversation, currUser}) {
 
     return (
         <>
-        <div className="d-flex bd-highlight">
+        <div className="d-flex bd-highlight container" onClick={() => {getMessages(conversation._id); getUserConv(user)} }>
             <div className="img_cont">
-                <img src="https://2.bp.blogspot.com/-8ytYF7cfPkQ/WkPe1-rtrcI/AAAAAAAAGqU/FGfTDVgkcIwmOTtjLka51vineFBExJuSACLcBGAs/s320/31.jpg" className="rounded-circle user_img"/>
+                <img src={user.profilePic ? user.profilePic : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"} className="rounded-circle user_img"/>
                 <span className="online_icon offline"></span>
             </div>
             <div className="user_info">
-                <span>{user}</span>
-                <p>Taherah left 7 mins ago</p>
+                <span>{user.username}</span>
+                <p>stato forse se riusciamo</p>
             </div>
         </div>
         </>

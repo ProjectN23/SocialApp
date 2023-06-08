@@ -1,3 +1,14 @@
+.container {
+    padding: 10px;
+    cursor: pointer;
+
+}
+
+.container:hover {
+    background-color: rgba(0,0,0,0.4);
+    transition: 0.5s;
+}
+
 .img_cont{
     position: relative;
     height: 70px;
@@ -25,10 +36,12 @@ margin-top: auto;
 margin-bottom: auto;
 margin-left: 15px;
 }
+
 .user_info span{
 font-size: 20px;
 color: white;
 }
+
 .user_info p{
 font-size: 10px;
 color: rgba(255,255,255,0.6);

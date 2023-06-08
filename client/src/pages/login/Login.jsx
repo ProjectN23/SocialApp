@@ -11,6 +11,7 @@ function Login() {
   const cookies = new Cookies()
 
   async function login(event) {
+    console.log(cookies)
     event.preventDefault();
     try {
      const res =  await axios.post("http://localhost:8800/api/users/checkUser", {
@@ -25,7 +26,6 @@ function Login() {
     }
 }
       
-
 
     return (
       <div className='login template d-flex justify-content-center align-items-center 100-w vh-100 bg-primary'>

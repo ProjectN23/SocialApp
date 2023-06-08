@@ -1,11 +1,53 @@
-import Chats from "../../components/chats/Chats";
+import FriendList from "../../components/friendList/FriendsList";
+import Messages from "../../components/messages/Messages";
 import "./home.css"
 import Cookies from 'universal-cookie';
 import jwt from "jwt-decode";
 const cookies = new Cookies()
+import { useNavigate } from 'react-router-dom';
+import { useState , useEffect} from 'react'
+import axios from 'axios'
 
 export default function Home() {
+	const navigate = useNavigate();
 	const userDec = jwt(cookies.get("jwt_authorization"))
+	const [conversation, setConversations] = useState([])
+	const [messages, setMessages] = useState([])
+	const [currUser, setCurrUser] = useState('')
+
+	const logout = () => {
+		cookies.set("jwt_authorization", null)
+		navigate('/');
+	}
+    
+
+	const getUserConv = async (user) => {
+		setCurrUser(user)
+	}
+
+    useEffect(() => {
+        const getConv = async () => {
+            try {
+                const resConv = await axios.get('http://localhost:8800/api/conversations/' + userDec.user_id);
+                setConversations(resConv.data)
+            } catch (err) {
+                console.log(err)
+            }
+        };
+        getConv()
+            
+    }, [userDec.user_id]);
+
+
+	const getMessages = async (conversation) => {
+		try {
+			const resMess = await axios.get('http://localhost:8800/api/messages/' + conversation);
+			setMessages(resMess.data)
+		} catch (err) {
+			console.log(err)
+		}
+	}
+
 
   return (
 	<>
@@ -35,65 +77,18 @@ export default function Home() {
 							</div>
 						</li>*/}
 							<li>
-								<Chats user={userDec.user_id}/>
+								<FriendList conversation={conversation} user={userDec.user_id} getMessages={getMessages} getUserConv={getUserConv}/>
 							</li>
 						</ul>
 					</div>
+
 					<div className="card-footer">
-						<div className="input-group">
-							<input type="text" placeholder="Search..." name="" className="form-control search"/>
-							<div className="input-group-prepend">
-								<span className="input-group-text search_btn"><i className="bi bi-search"></i></span>
-							</div>
+						<button type="button" className="btn btn-primary" onClick={logout}>Logout</button>
 					</div>
-          </div>
 				</div></div>
 				<div className="col-md-8 col-xl-6 chat">
 					<div className="card">
-						<div className="card-header msg_head">
-							<div className="d-flex bd-highlight">
-								<div className="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" className="rounded-circle user_img"/>
-									<span className="online_icon"></span>
-								</div>
-								<div className="user_info">
-									<span>Chat with Khalid</span>
-									<p>1767 Messages</p>
-								</div>
-								<div className="video_cam">
-									<span><i className="bi bi-video"></i></span>
-									<span><i className="fa fa-phone"></i></span>
-								</div>
-							</div>
-							<span id="action_menu_btn"><i className="bi bi-three-dots-vertical"></i></span>
-							<div className="action_menu">
-								<ul>
-									<li><i className="bi bi-person-circle"></i> View profile</li>
-									<li><i className="fa fa-users"></i> Add to close friends</li>
-									<li><i className="fa fa-plus"></i> Add to group</li>
-									<li><i className="fa fa-ban"></i> Block</li>
-								</ul>
-							</div>
-						</div>
-						<div className="card-body msg_card_body">
-							<div className="d-flex justify-content-start mb-4">
-								<div className="img_cont_msg">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" className="rounded-circle user_img_msg"/>
-								</div>
-								<div className="msg_cotainer">
-									Hi, how are you samim?
-									<span className="msg_time">8:40 AM, Today</span>
-								</div>
-							</div>
-							<div className="d-flex justify-content-end mb-4">
-								<div className="msg_cotainer_send">
-									Hi Khalid i am good tnx how about you?
-									<span className="msg_time_send">8:55 AM, Today</span>
-								</div>
-								<div className="img_cont_msg">
-								</div>
-							</div>
-						</div>
+						<Messages currUser={currUser} messages={messages}/> 
 						<div className="card-footer">
 							<div className="input-group">
 								<div className="input-group-append">

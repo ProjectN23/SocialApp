@@ -1,33 +1,50 @@
-import FriendList from "../../components/friendList/FriendsList";
+import Conversations from "../../components/conversations/Conversations";
 import Messages from "../../components/messages/Messages";
 import "./home.css"
 import Cookies from 'universal-cookie';
 import jwt from "jwt-decode";
 const cookies = new Cookies()
 import { useNavigate } from 'react-router-dom';
-import { useState , useEffect} from 'react'
+import { useState , useEffect, useRef} from 'react'
 import axios from 'axios'
 
 export default function Home() {
 	const navigate = useNavigate();
+
+	//li utilizziamo per fare vedere a video le conversazioni
 	const userDec = jwt(cookies.get("jwt_authorization"))
 	const [conversation, setConversations] = useState([])
-	const [messages, setMessages] = useState([])
 	const [currUser, setCurrUser] = useState('')
+
+
+
+	const [currConv, setCurrConv] = useState([])
+	const [messages, setMessages] = useState([])
+
+	const [newMess, setNewMess] = useState('')
+
 
 	const logout = () => {
 		cookies.set("jwt_authorization", null)
+		alert("Logout effettuato con successo");
 		navigate('/');
+	}
+
+
+	const setCurrentChat = (currentConv) => {
+		setCurrConv(currentConv)
+		console.log(currConv)
+	}
+
+	const getCurrUser = (currentUser) => {
+		setCurrUser(currentUser)
 	}
     
 
-	const getUserConv = async (user) => {
-		setCurrUser(user)
-	}
-
-    useEffect(() => {
-        const getConv = async () => {
+	useEffect(() => {
+		const getConv = async () => {
             try {
+
                 const resConv = await axios.get('http://localhost:8800/api/conversations/' + userDec.user_id);
                 setConversations(resConv.data)
             } catch (err) {
@@ -35,19 +52,39 @@ export default function Home() {
             }
         };
         getConv()
+	}, [userDec.user_id])
+        
             
-    }, [userDec.user_id]);
 
-
-	const getMessages = async (conversation) => {
+	useEffect(() => {
+	const getMessages = async () => {
 		try {
-			const resMess = await axios.get('http://localhost:8800/api/messages/' + conversation);
+			const resMess = await axios.get('http://localhost:8800/api/messages/' + currConv?._id);
 			setMessages(resMess.data)
 		} catch (err) {
 			console.log(err)
 		}
 	}
+	getMessages();
+}, [currConv._id]);
 
+
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		try {
+			const res =  await axios.post('http://localhost:8800/api/messages/', {
+			  conversationId: currConv,
+			  sender: userDec.user_id,
+			  text: newMess,
+			});
+			setMessages([...messages, res.data])
+			alert("Messaggio inviato con successo");
+			setNewMess('')
+		  } catch (err) {
+			alert(err.response);
+		  }
+	}
 
   return (
 	<>
@@ -77,7 +114,7 @@ export default function Home() {
 							</div>
 						</li>*/}
 							<li>
-								<FriendList conversation={conversation} user={userDec.user_id} getMessages={getMessages} getUserConv={getUserConv}/>
+								<Conversations conversation={conversation} user={userDec.user_id} setCurrentChat={setCurrentChat} getCurrUser={getCurrUser} />								
 							</li>
 						</ul>
 					</div>
@@ -88,18 +125,34 @@ export default function Home() {
 				</div></div>
 				<div className="col-md-8 col-xl-6 chat">
 					<div className="card">
-						<Messages currUser={currUser} messages={messages}/> 
-						<div className="card-footer">
-							<div className="input-group">
-								<div className="input-group-append">
-									<span className="input-group-text attach_btn"><i className="bi bi-paperclip"></i></span>
+								{ 
+								currUser ? 
+								<>
+								<Messages currUser={currUser} messages={messages}/> 
+								
+								<div className="card-footer">
+									<div className="input-group">
+										<div className="input-group-append">
+											<span className="input-group-text attach_btn"><i className="bi bi-paperclip"></i></span>
+										</div>
+										<textarea name="" className="form-control type_msg" placeholder="Type your message..." 
+										onChange={(e) => setNewMess(e.target.value)}
+										value={newMess}
+										></textarea>
+										<div className="input-group-append">
+											<button className="input-group-text send_btn"><i className="bi bi-send-fill" onClick={handleSubmit}></i></button>
+										</div>
+									</div>
 								</div>
-								<textarea name="" className="form-control type_msg" placeholder="Type your message..."></textarea>
-								<div className="input-group-append">
-									<span className="input-group-text send_btn"><i className="bi bi-send-fill"></i></span>
+								</> : 
+								<div className="card-header msg_head">
+									<div className="d-flex bd-highlight">
+										<span id="action_menu_btn"><i className="bi bi-person-circle"></i></span>	
+									</div>
 								</div>
-							</div>
-						</div>
+								
+								}						
+								
 					</div>
 				</div>
 			</div>

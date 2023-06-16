@@ -3,18 +3,25 @@ import Messages from "../../components/messages/Messages";
 import "./home.css"
 import Cookies from 'universal-cookie';
 import jwt from "jwt-decode";
-const cookies = new Cookies()
 import { useNavigate } from 'react-router-dom';
 import { useState , useEffect, useRef} from 'react'
 import axios from 'axios'
 
+import { io } from "socket.io-client";
+
+
 export default function Home() {
+
+
+	const cookies = new Cookies()
 	const navigate = useNavigate();
 
 	//li utilizziamo per fare vedere a video le conversazioni
 	const userDec = jwt(cookies.get("jwt_authorization"))
 	const [conversation, setConversations] = useState([])
 	const [currUser, setCurrUser] = useState('')
+
+	const socket = useRef();
 
 
 
@@ -25,7 +32,7 @@ export default function Home() {
 
 
 	const logout = () => {
-		cookies.set("jwt_authorization", null)
+		cookies.remove("jwt_authorization")
 		alert("Logout effettuato con successo");
 		navigate('/');
 	}
@@ -39,6 +46,36 @@ export default function Home() {
 	const getCurrUser = (currentUser) => {
 		setCurrUser(currentUser)
 	}
+
+
+	const [arrivalMessage, setArrivalMessage] = useState(null)
+	  useEffect(() => {
+    socket.current = io("ws://localhost:8900");
+    socket.current.on("getMessage", (data) => {
+      setArrivalMessage({
+        sender: data.senderId,
+        text: data.text,
+        createdAt: Date.now(),
+      });
+    });
+  }, []);
+
+
+  useEffect(() => {
+    arrivalMessage &&
+      currConv?.members.includes(arrivalMessage.sender) &&
+      setMessages();
+  }, [arrivalMessage, currConv]);
+
+
+  useEffect(() => {
+    socket.current.emit("addUser", userDec.user_id);
+    socket.current.on("getUsers", (users) => {
+      console.log(users)
+    });
+  }, [userDec.user_id]);
+
+
     
 
 	useEffect(() => {
@@ -72,14 +109,22 @@ export default function Home() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		const message = {
+			conversationId: currConv,
+			sender: userDec.user_id,
+			text: newMess,
+		}
+
+		const receiverId = currConv.members.find(member => member !== userDec._id)
+		socket.current.emit("sendMessage", {
+			senderId : userDec.user_id,
+			receiverId,
+			text: newMess,
+		})
+		
 		try {
-			const res =  await axios.post('http://localhost:8800/api/messages/', {
-			  conversationId: currConv,
-			  sender: userDec.user_id,
-			  text: newMess,
-			});
-			setMessages([...messages, res.data])
-			alert("Messaggio inviato con successo");
+			const res =  await axios.post('http://localhost:8800/api/messages/', message);
+			setMessages((prev) =>[...prev, res.data])
 			setNewMess('')
 		  } catch (err) {
 			alert(err.response);

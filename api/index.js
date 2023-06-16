@@ -10,7 +10,6 @@ const userRoute = require("./routes/users");
 const convRoute = require("./routes/conversations");
 const messageRoute = require("./routes/messages");
 const authRoute = require("./routes/auth");
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const cookieParser = require('cookie-parser')
 //Collegamento al db
 mongoose.connect('mongodb+srv://admin:admin@databaseprova.hahfdym.mongodb.net/SocialApp')
@@ -19,7 +18,6 @@ const db = mongoose.connection
 db.once('open', () => {
   console.log('Connesso al DB')
 })
-
 
 //Allow del cors
 const cors=require("cors");

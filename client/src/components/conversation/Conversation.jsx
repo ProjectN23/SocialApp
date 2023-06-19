@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react'
 import axios from 'axios'
 import './conversation.css'
 
-export default function Conversation({ conversation, currUser, setCurrentChat, getCurrUser}) {
+export default function Conversation({ conversation, currUser, setCurrentChat, getCurrUser, handleDelUser}) {
     const [user, setUser] = useState([])
 
     useEffect(() => {
@@ -31,6 +31,7 @@ export default function Conversation({ conversation, currUser, setCurrentChat, g
                     <span>{user.username}</span>
                     <p>stato forse se riusciamo</p>
                 </div>
+                <button className='float-end btn btn-danger' onClick={() => handleDelUser(conversation)}>Elimina</button>	
             </div>
         </div>
         </>

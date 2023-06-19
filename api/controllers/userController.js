@@ -67,7 +67,19 @@ module.exports = {
       } catch (err) {
           res.status(500).json(err)
       }
-  }
+  },
+
+
+  getUserByName: async (req, res) => {
+    try {
+        const user = await User.findOne({
+            username: { $in:[req.params.user]}
+        })
+        res.status(200).json(user)
+    } catch (err) {
+        res.status(500).json(err)
+    }
+}
 
 }
     

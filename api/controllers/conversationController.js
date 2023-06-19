@@ -24,6 +24,15 @@ module.exports = {
         } catch (err) {
             res.status(500).json(err)
         }
+    },
+
+    deleteConversation: async (req, res) => {
+        try {
+            const conversation = await Conversation.deleteOne(req.body)
+            res.status(200).json(conversation)
+        } catch (err) {
+            res.status(500).json(err)
+        }
     }
     
 

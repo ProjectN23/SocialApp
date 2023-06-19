@@ -1,5 +1,5 @@
 import {format} from 'timeago.js'
-
+import "./message.css"
 export default function Message({mess, user}) {
 
     return (
@@ -7,7 +7,7 @@ export default function Message({mess, user}) {
     { user._id === mess.sender ? 
     
     <div className="d-flex justify-content-start mb-4">
-        <div className="msg_cotainer">
+        <div className="msg_container">
             {mess.text}
             <span className="msg_time">{format(mess.createdAt)}</span>
         </div>

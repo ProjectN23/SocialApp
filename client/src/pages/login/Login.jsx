@@ -18,7 +18,7 @@ function Login() {
         email: email.current.value,
         password: password.current.value,
       });
-      cookies.set("jwt_authorization", res.data.token, {secure: true, sameSite: 'none', maxAge: 500})
+      cookies.set("jwt_authorization", res.data.token, {secure: true, sameSite: 'strict', maxAge: 5000})
       alert("Login effettuato con successo");
       navigate("/home");
     } catch (err) {

@@ -19,16 +19,20 @@ export default function Home() {
 	//li utilizziamo per fare vedere a video le conversazioni
 	const userDec = jwt(cookies.get("jwt_authorization"))
 	const [conversation, setConversations] = useState([])
+	const [searchUser, setSearchUser] = useState('')
 	const [currUser, setCurrUser] = useState('')
-
+	const [flagButton, setButtons] = useState(false)
 	const socket = useRef();
 
 
 
 	const [currConv, setCurrConv] = useState([])
 	const [messages, setMessages] = useState([])
-
 	const [newMess, setNewMess] = useState('')
+
+	const [userSearched, setUserSearched] = useState(null)
+
+	
 
 
 	const logout = () => {
@@ -131,77 +135,147 @@ export default function Home() {
 		  }
 	}
 
+
+	const handleSearch = async (e) => {
+		try {
+			const res =  await axios.get('http://localhost:8800/api/users/getUserByName/' + searchUser);
+			setUserSearched(res.data)
+			console.log(userSearched)
+		  } catch (err) {
+			alert(err.response);
+		  }
+		}
+
+
+		const handleAddUser = async (e) => {
+			e.preventDefault()
+			setButtons(true)
+		}
+	
+		const handleChat = async (e) => {
+			e.preventDefault()
+			setButtons(false)
+		}
+
+		const handleAddUserToChat = async (e) => {
+			e.preventDefault()
+			const data = {
+				senderId: userDec.user_id,
+				receiverId: userSearched._id,
+			}
+			
+			try {
+				const res =  await axios.post('http://localhost:8800/api/conversations/', data);
+				setConversations((prev) =>[...prev, res.data])
+				setButtons(false)
+			  } catch (err) {
+				alert(err.response);
+			  }
+		}
+
+
+		const handleDelUser = async (conv) => {
+
+			try {
+				await axios.delete('http://localhost:8800/api/conversations/deleteConv', conv);
+				setConversations(conversation => {
+					return conversation.filter(e => e._id !== conv._id)
+				})
+			  } catch (err) {
+				alert(err.response);
+			  }
+			
+		}
+	
   return (
 	<>
-    <div className='container-fluid justify-content-center align-items-center 100-w vh-100 bg-primary'>
-      <div className="row justify-content-center align-items-center h-100">
-				<div className="col-md-4 col-xl-3 chat"><div className="card mb-sm-3 mb-md-0 contacts_card">
+    <div className='container-fluid 100-w vh-100'>
+    	<div className="row">
+			<div className="col-sm-3 col-md-5 col-xl-4 chat">
+				<div className="card">
 					<div className="card-header">
-						<div className="input-group">
-							<input type="text" placeholder="Search..." name="" className="form-control search"/>
-							<div className="input-group-prepend">
-								<span className="input-group-text search_btn"><i className="bi bi-search"></i></span>
-							</div>
-						</div>
+						<div className="card-icons">
+							<button className="btn btn-light" onClick={logout}>Logout</button>
+							<button className="btn btn-light" onClick={handleAddUser}><i className="bi bi-3x bi-person-add icons"></i></button>
+							<button className="btn btn-light rounded-5" onClick={handleChat}><i class="bi bi-chat-dots icons"></i></button>
+						</div>		
 					</div>
 					<div className="card-body contacts_body">
-						<ul className="contacts">
-						{/*<li className="active">
-							<div className="d-flex bd-highlight">
-								<div className="img_cont">
-									<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" className="rounded-circle user_img"/>
-									<span className="online_icon"></span>
-								</div>
-								<div className="user_info">
-									<span></span>
-									<p>Kalid is online</p>
+						{ flagButton ?
+							<>
+							<div className="input-group">
+								<input type="text" placeholder="Search..." className="form-control search"
+								value={searchUser} onChange={(e) => setSearchUser(e.target.value)} />
+								<div className="input-group-prepend">
+									<span className="input-group-text search_btn" onClick={handleSearch}><i className="bi bi-search"></i></span>
 								</div>
 							</div>
-						</li>*/}
-							<li>
-								<Conversations conversation={conversation} user={userDec.user_id} setCurrentChat={setCurrentChat} getCurrUser={getCurrUser} />								
-							</li>
-						</ul>
-					</div>
-
-					<div className="card-footer">
-						<button type="button" className="btn btn-primary" onClick={logout}>Logout</button>
-					</div>
-				</div></div>
-				<div className="col-md-8 col-xl-6 chat">
-					<div className="card">
-								{ 
-								currUser ? 
+							<ul className="contacts">
+								{ userSearched === null ?
+									<span>Nessun utente con quel nome</span> 
+								:
 								<>
-								<Messages currUser={currUser} messages={messages}/> 
-								
-								<div className="card-footer">
-									<div className="input-group">
-										<div className="input-group-append">
-											<span className="input-group-text attach_btn"><i className="bi bi-paperclip"></i></span>
-										</div>
-										<textarea name="" className="form-control type_msg" placeholder="Type your message..." 
-										onChange={(e) => setNewMess(e.target.value)}
-										value={newMess}
-										></textarea>
-										<div className="input-group-append">
-											<button className="input-group-text send_btn"><i className="bi bi-send-fill" onClick={handleSubmit}></i></button>
-										</div>
+								<div className="d-flex bd-highlight container">
+									<div className="img_cont">
+										<img src={userSearched.profilePic ? user.profilePic : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"} className="rounded-circle user_img"/>
+										<span className="online_icon offline"></span>
 									</div>
-								</div>
-								</> : 
-								<div className="card-header msg_head">
-									<div className="d-flex bd-highlight">
-										<span id="action_menu_btn"><i className="bi bi-person-circle"></i></span>	
+									<div className="user_info">
+										<span>{userSearched.username}</span>
+										<p>stato forse se riusciamo</p>
 									</div>
-								</div>
-								
-								}						
-								
+									<div float-right>
+										<i class="bi bi-plus-circle" onClick={handleAddUserToChat}></i>
+									</div>
+								</div>	
+								</>
+								} 		
+							</ul>
+							</> : 
+							<ul className="contacts">
+								<li>
+									<Conversations conversation={conversation} user={userDec.user_id} setCurrentChat={setCurrentChat} getCurrUser={getCurrUser} handleDelUser={handleDelUser} />							
+								</li>
+							</ul>
+						}
 					</div>
 				</div>
 			</div>
+			<div className="col-md-7 col-xl-8 chat">
+				<div className="card">
+					{ 
+					currUser ? 
+					<>
+					<Messages currUser={currUser} messages={messages}/> 
+					
+					<div className="card-footer">
+						<div className="input-group">
+							<div className="input-group-append">
+								<span className="input-group-text attach_btn"><i className="bi bi-paperclip"></i></span>
+							</div>
+							<textarea name="" className="form-control type_msg" placeholder="Type your message..." 
+							onChange={(e) => setNewMess(e.target.value)}
+							value={newMess}
+							></textarea>
+							<div className="input-group-append">
+								<button className="input-group-text send_btn"><i className="bi bi-send-fill" onClick={handleSubmit}></i></button>
+							</div>
+						</div>
+					</div>
+					</> : 
+					<div className="card-header msg_head">
+						<div className="d-flex bd-highlight">
+							<span id="action_menu_btn"><i className="bi bi-person-circle"></i></span>	
+						</div>
+					</div>
+					
+					}									
+				</div>
+			</div>
 		</div>
+	</div>
 	</>
   );
 }
+
+

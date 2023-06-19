@@ -1,6 +1,7 @@
 import Message from '../message/Message'
 import {useState, useEffect, useRef} from 'react'
 import axios from 'axios'
+import "./messages.css"
 export default function Messages({currUser, messages}) {
     return (
         <>
@@ -10,7 +11,7 @@ export default function Messages({currUser, messages}) {
        <div className="card-header msg_head">
         <div className="d-flex bd-highlight">
             <div className="img_cont">
-                <img src={currUser.profilePic} className="rounded-circle user_img"/>
+                <img src={currUser.profilePic ? currUser.profilePic : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"} className="rounded-circle user_img"/>
                 <span className="online_icon"></span>
             </div>
             <div className="user_info">

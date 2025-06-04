@@ -1,6 +1,7 @@
 //Libreria express per l'instradamento
 const express = require("express");
 const app = express();
+const { db_connections } = require("./db");
 
 //richiamo il db
 const mongoose = require("mongoose");
@@ -12,7 +13,7 @@ const messageRoute = require("./routes/messages");
 const authRoute = require("./routes/auth");
 const cookieParser = require('cookie-parser')
 //Collegamento al db
-mongoose.connect('mongodb+srv://admin:admin@databaseprova.hahfdym.mongodb.net/SocialApp')
+mongoose.connect(db_connections)
 const db = mongoose.connection
 
 db.once('open', () => {
